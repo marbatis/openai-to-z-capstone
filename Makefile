@@ -1,4 +1,4 @@
-.PHONY: help install lint fmt test notebook notebook2 kernel venv clean
+.PHONY: help install lint lint-fix fmt test notebook notebook2 kernel venv clean
 
 # Configurable paths and names
 VENV ?= .venv
@@ -11,6 +11,7 @@ help:
 	@echo "Targets:"
 	@echo "  install   - pip install -r requirements.txt"
 	@echo "  lint      - ruff check ."
+	@echo "  lint-fix  - ruff --fix + black format"
 	@echo "  fmt       - black ."
 	@echo "  test      - pytest"
 	@echo "  kernel    - install ipykernel for venv ($(KERNEL))"
@@ -24,6 +25,10 @@ install:
 
 lint:
 	ruff check .
+
+lint-fix:
+	ruff check . --fix || true
+	black .
 
 fmt:
 	black .
