@@ -49,6 +49,13 @@ jupyter notebook notebooks/01_checkpoint1.ipynb
 ```
 Work through: define a bounding box, list at least **one** data source (LiDAR tile ID, Sentinel/ Landsat scene ID, etc.), and log it with `zexplorer.data_id_logger`.
 
+### Next: Checkpoint 2
+Open the scaffolded search + logging notebook:
+```bash
+make notebook2
+```
+This queries Sentinel-2 L2A via a public STAC endpoint within your AOI, saves a small search artifact to `data/stac_search`, visualizes footprints, and logs a JSONL evidence record.
+
 ---
 
 ## Project Layout

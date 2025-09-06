@@ -1,4 +1,4 @@
-.PHONY: help install lint fmt test notebook kernel venv clean
+.PHONY: help install lint fmt test notebook notebook2 kernel venv clean
 
 # Configurable paths and names
 VENV ?= .venv
@@ -15,6 +15,7 @@ help:
 	@echo "  test      - pytest"
 	@echo "  kernel    - install ipykernel for venv ($(KERNEL))"
 	@echo "  notebook  - launch Jupyter using venv kernel"
+	@echo "  notebook2 - open notebooks/02_checkpoint2.ipynb"
 	@echo "  venv      - create .venv and install requirements"
 	@echo "  clean     - remove .venv and Python caches"
 
@@ -33,6 +34,9 @@ test:
 notebook:
 	$(MAKE) venv kernel
 	$(JUPYTER) notebook $(NOTEBOOK)
+
+notebook2:
+	$(MAKE) NOTEBOOK=notebooks/02_checkpoint2.ipynb notebook
 
 kernel:
 	@# Install a named Jupyter kernel backed by the venv's Python
