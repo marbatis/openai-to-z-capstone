@@ -11,6 +11,10 @@ target-version = ["py310","py311","py312"]
 
 [tool.ruff]
 line-length = 100
+exclude = [
+    "notebooks/10_ALOS2_seasonal_composites.ipynb",
+    "notebooks/11_GEDI_L4C_WSCI_extraction.ipynb",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
