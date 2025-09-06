@@ -15,5 +15,5 @@ rich
 pydantic
 python-dotenv
 pytest
-black
+black[jupyter]
 ruff
