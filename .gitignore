@@ -1,0 +1,29 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & outputs
+data/
+logs/*.tmp
+*.tif
+*.tiff
+*.vrt
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,37 @@
+You are an automation assistant with shell and git access on my machine.
+Goal: Create a new GitHub repo and push the provided ZExplorer skeleton, then set up the dev environment.
+
+# PARAMETERS (replace with your values)
+REPO_NAME="openai-to-z-capstone"
+GITHUB_OWNER="<your-gh-username-or-org>"
+LOCAL_SKELETON_PATH="</absolute/path/to/downloaded/openai-to-z-capstone>"
+
+# 1) Create GitHub repo (requires GitHub CLI 'gh' and authenticated session)
+gh repo create "$GITHUB_OWNER/$REPO_NAME" --public --source="$LOCAL_SKELETON_PATH" --remote=origin --push --description "Self-guided capstone inspired by OpenAI to Z Challenge"
+
+# If the above fails (older gh), do it manually:
+#   cd "$LOCAL_SKELETON_PATH"
+#   git init -b main
+#   git add .
+#   git commit -m "chore: bootstrap ZExplorer skeleton"
+#   gh repo create "$GITHUB_OWNER/$REPO_NAME" --public --confirm
+#   git remote add origin "https://github.com/$GITHUB_OWNER/$REPO_NAME.git"
+#   git push -u origin main
+
+# 2) Set up Python env
+cd "$LOCAL_SKELETON_PATH"
+python -m venv .venv
+source .venv/bin/activate || . .venv/Scripts/activate
+
+python -m pip install -U pip
+pip install -r requirements.txt
+
+# 3) Sanity checks
+make lint || true
+make test
+
+# 4) Jupyter kernel
+python -m ipykernel install --user --name zexplorer
+
+# 5) Open notebook (optional)
+# jupyter notebook notebooks/01_checkpoint1.ipynb
