@@ -1,4 +1,4 @@
-.PHONY: help install lint fmt test notebook kernel
+.PHONY: help install lint fmt test notebook kernel venv
 
 # Configurable paths and names
 VENV ?= .venv
@@ -15,6 +15,7 @@ help:
 	@echo "  test      - pytest"
 	@echo "  kernel    - install ipykernel for venv ($(KERNEL))"
 	@echo "  notebook  - launch Jupyter using venv kernel"
+	@echo "  venv      - create .venv and install requirements"
 
 install:
 	pip install -r requirements.txt
@@ -29,21 +30,19 @@ test:
 	pytest
 
 notebook:
-	@# Ensure venv python exists
-	@if [ ! -x "$(PYTHON)" ]; then \
-	  echo "Virtual env not found at $(PYTHON)"; \
-	  echo "Create it with: python -m venv $(VENV) && source $(VENV)/bin/activate && pip install -r requirements.txt"; \
-	  exit 1; \
-	fi
-	$(MAKE) kernel
+	$(MAKE) venv kernel
 	$(JUPYTER) notebook $(NOTEBOOK)
 
 kernel:
 	@# Install a named Jupyter kernel backed by the venv's Python
-	@if [ ! -x "$(PYTHON)" ]; then \
-	  echo "Virtual env not found at $(PYTHON)"; \
-	  echo "Create it with: python -m venv $(VENV) && source $(VENV)/bin/activate && pip install -r requirements.txt"; \
-	  exit 1; \
-	fi
+	$(MAKE) venv
 	$(PYTHON) -m ipykernel install --user --name $(KERNEL) --display-name "Python ($(KERNEL))"
 
+venv:
+	@# Create venv if missing and install requirements
+	@if [ ! -x "$(PYTHON)" ]; then \
+	  echo "Creating virtualenv at $(VENV)"; \
+	  python3 -m venv $(VENV); \
+	fi
+	$(PYTHON) -m pip install -U pip
+	$(PYTHON) -m pip install -r requirements.txt
