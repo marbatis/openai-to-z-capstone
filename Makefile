@@ -1,4 +1,4 @@
-.PHONY: help install lint fmt test notebook kernel venv
+.PHONY: help install lint fmt test notebook kernel venv clean
 
 # Configurable paths and names
 VENV ?= .venv
@@ -16,6 +16,7 @@ help:
 	@echo "  kernel    - install ipykernel for venv ($(KERNEL))"
 	@echo "  notebook  - launch Jupyter using venv kernel"
 	@echo "  venv      - create .venv and install requirements"
+	@echo "  clean     - remove .venv and Python caches"
 
 install:
 	pip install -r requirements.txt
@@ -46,3 +47,11 @@ venv:
 	fi
 	$(PYTHON) -m pip install -U pip
 	$(PYTHON) -m pip install -r requirements.txt
+
+clean:
+	@echo "Cleaning Python caches and virtualenv..."
+	@find . -name '__pycache__' -type d -prune -exec rm -rf {} +
+	@find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
+	@find . -name '.ipynb_checkpoints' -type d -prune -exec rm -rf {} +
+	@rm -rf .pytest_cache .ruff_cache .mypy_cache
+	@rm -rf $(VENV)
