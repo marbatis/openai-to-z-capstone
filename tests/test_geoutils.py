@@ -1,7 +1,9 @@
 import math
+
 import pytest
 
 from zexplorer.geoutils import bbox_from_center
+
 
 # Helper functions matching the implementation's approximations
 def _expected_dlat(half_size_m: float) -> float:
