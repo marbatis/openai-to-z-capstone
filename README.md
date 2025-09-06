@@ -1,5 +1,7 @@
 # ZExplorer: OpenAI-to-Z Capstone (Self‑Guided)
 
+[![CI](https://github.com/marbatis/openai-to-z-capstone/actions/workflows/ci.yml/badge.svg)](https://github.com/marbatis/openai-to-z-capstone/actions/workflows/ci.yml)
+
 This repository is a **training/capstone** adaptation of the OpenAI *to Z* Challenge (now closed).
 It mirrors the original checkpoints and deliverables so you can practice end‑to‑end: define an area
 in the Amazon biome, gather open data, generate candidate archaeological sites, and log reproducible
@@ -122,4 +124,3 @@ make help
 
 ## License
 Apache-2.0 (see `LICENSE`, `NOTICE`).
-
