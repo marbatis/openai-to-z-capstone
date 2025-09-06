@@ -1,1 +1,1 @@
-__all__ = ['data_id_logger', 'geoutils', 'anomaly']
+__all__ = ["data_id_logger", "geoutils", "anomaly"]

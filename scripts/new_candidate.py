@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 from __future__ import annotations
+
 import argparse
-from zexplorer.data_id_logger import log_evidence, DataSource, ModelInfo
+
+from zexplorer.data_id_logger import DataSource, ModelInfo, log_evidence
 from zexplorer.geoutils import bbox_from_center
+
 
 def main():
     ap = argparse.ArgumentParser(description="Log a new candidate site/evidence line")
@@ -34,6 +37,7 @@ def main():
         notes=args.notes,
     )
     print("Logged:", rec)
+
 
 if __name__ == "__main__":
     main()

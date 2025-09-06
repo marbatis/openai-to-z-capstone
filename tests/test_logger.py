@@ -1,11 +1,12 @@
-import os
 from pathlib import Path
-from zexplorer.data_id_logger import log_evidence, DataSource
+
+from zexplorer.data_id_logger import DataSource, log_evidence
+
 
 def test_log_evidence(tmp_path: Path, monkeypatch):
     log_path = tmp_path / "evidence.jsonl"
     monkeypatch.setenv("ZEXP_LOG_PATH", str(log_path))
-    rec = log_evidence(
+    log_evidence(
         lat=-10.0,
         lon=-52.0,
         candidate_id="test-0001",

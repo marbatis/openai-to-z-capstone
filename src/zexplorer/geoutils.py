@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Tuple, List
 from math import cos, radians
+from typing import List
+
 
 def bbox_from_center(lat: float, lon: float, half_size_m: float) -> List[float]:
     """

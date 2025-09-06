@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional, Dict, Any
-import hashlib
+from typing import Any, Dict, List, Optional
 
 DEFAULT_LOG_PATH = Path("logs/evidence_log.jsonl")
+
 
 def _log_path() -> Path:
     # Allow override for tests
@@ -17,8 +18,10 @@ def _log_path() -> Path:
         return Path(env_path)
     return DEFAULT_LOG_PATH
 
+
 def sha256_hex(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
+
 
 @dataclass
 class DataSource:
@@ -26,10 +29,12 @@ class DataSource:
     id: str
     url: Optional[str] = None
 
+
 @dataclass
 class ModelInfo:
     name: str
     version: str
+
 
 @dataclass
 class EvidenceRecord:
@@ -44,6 +49,7 @@ class EvidenceRecord:
     output_sha256: Optional[str] = None
     notes: Optional[str] = None
     extra: Dict[str, Any] = field(default_factory=dict)
+
 
 def log_evidence(
     lat: float,
