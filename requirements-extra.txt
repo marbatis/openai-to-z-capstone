@@ -1,0 +1,9 @@
+# Optional dependencies for RAT notebooks (not needed for core repo/tests)
+earthengine-api
+geemap
+earthaccess
+h5py
+geopandas
+shapely
+pyproj
+pandas
