@@ -64,3 +64,15 @@ clean:
 	@find . -name '.ipynb_checkpoints' -type d -prune -exec rm -rf {} +
 	@rm -rf .pytest_cache .ruff_cache .mypy_cache
 	@rm -rf $(VENV)
+# ---- Marajó AOI helpers ----
+marajo-preview:
+	python scripts/aoi_marajo_preview.py
+
+marajo: rat-setup
+	jupyter notebook notebooks/10a_ALOS2_MARAJO.ipynb
+
+marajo-gedi: rat-setup
+	jupyter notebook notebooks/11a_GEDI_MARAJO.ipynb
+
+marajo-all: rat-setup
+	jupyter notebook notebooks/10a_ALOS2_MARAJO.ipynb notebooks/11a_GEDI_MARAJO.ipynb
