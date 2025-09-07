@@ -154,3 +154,22 @@ make marajo-gedi
 # Open both notebooks
 make marajo-all
 ```
+
+## Marajó Quickstart
+
+Required exports in `data/exports/`:
+- `marajo_S1_hotspots_coarse.geojson` (Sentinel-1 hotspots polygons)
+- `marajo_S1VV_delta_db.tif` (Sentinel-1 VV seasonal Δ, dB)
+- `marajo_DEM_30m.tif` (DEM at ~30 m)
+- `marajo_ALOS2_delta_rgb.tif` (colorized ALOS-2 Δ RGB)
+- `marajo_S1VV_delta_rgb.tif` (optional; if absent, dB layer is used)
+
+Move from Downloads:
+- `make move-downloads`
+
+Run the end-to-end pipeline:
+- `make marajo`
+
+Outputs:
+- `data/candidates/*.csv|.geojson`
+- `figures/candidates/*.png`
