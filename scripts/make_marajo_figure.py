@@ -6,10 +6,10 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tifffile as tiff
 from PIL import Image
 from skimage.morphology import binary_opening, disk, remove_small_objects
 from skimage.transform import resize
+import tifffile as tiff
 
 
 def load_gray_db(path: Path) -> np.ndarray:
@@ -95,4 +95,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
