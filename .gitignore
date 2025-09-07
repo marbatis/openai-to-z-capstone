@@ -11,7 +11,7 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Data & outputs
-/data/*
+/data/exports/*
 !/data/.gitkeep
 logs/*.tmp
 *.tif
@@ -36,7 +36,6 @@ data/exports/*.zip
 data/exports/*_mask_*.tif
 data/candidates/*.csv
 data/candidates/*.geojson
-figures/candidates/*.png
 
 # Local helper prototypes not part of the one-file pipeline
 scripts/select_candidates.py
@@ -46,3 +45,12 @@ scripts/polygonize_hotmask.py
 
 # local preview
 /data/aoi_marajo_preview.html
+!data/
+!data/candidates/
+!data/candidates/*.csv
+!data/candidates/*.geojson
+!data/candidates/*.json
+
+!figures/
+!figures/candidates/
+!figures/candidates/*.png
