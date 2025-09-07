@@ -28,3 +28,18 @@ logs/*.tmp
 # IDE
 .vscode/
 .idea/
+# Marajó pipeline artifacts (keep exports and outputs untracked)
+data/exports/*.tif
+data/exports/*.tiff
+data/exports/*.vrt
+data/exports/*.zip
+data/exports/*_mask_*.tif
+data/candidates/*.csv
+data/candidates/*.geojson
+figures/candidates/*.png
+
+# Local helper prototypes not part of the one-file pipeline
+scripts/select_candidates.py
+scripts/score_hydro_plausibility.py
+scripts/make_candidate_overview.py
+scripts/polygonize_hotmask.py
