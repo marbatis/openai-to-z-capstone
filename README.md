@@ -173,3 +173,11 @@ Run the end-to-end pipeline:
 Outputs:
 - `data/candidates/*.csv|.geojson`
 - `figures/candidates/*.png`
+
+## AOI-scoped pipeline
+
+- Put exports in `data/exports/<prefix>_*` (e.g., `santarem_S1VV_delta_db.tif`)
+- Stage downloads:  `make move-downloads PREFIX=santarem`
+- Run pipeline:     `make santarem-pipeline`
+- Outputs:          `data/candidates/<prefix>/` and `figures/<prefix>/`
+

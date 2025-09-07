@@ -83,3 +83,18 @@ move-downloads:
 
 marajo:
 	@. .venv/bin/activate && python scripts/run_marajo_pipeline.py --topN 5 --buffer_m 6000
+
+# --- AOI-aware helpers ---
+.PHONY: move-downloads
+move-downloads:
+	@PREFIX=$(PREFIX) bash scripts/move_downloads_to_exports.sh
+
+.PHONY: marajo-pipeline santarem-pipeline tapajos-pipeline
+marajo-pipeline:
+	@. .venv/bin/activate && python scripts/run_marajo_pipeline.py --prefix marajo --topN 5 --buffer_m 6000
+
+santarem-pipeline:
+	@. .venv/bin/activate && python scripts/run_marajo_pipeline.py --prefix santarem --topN 5 --buffer_m 6000
+
+tapajos-pipeline:
+	@. .venv/bin/activate && python scripts/run_marajo_pipeline.py --prefix tapajos --topN 5 --buffer_m 6000

@@ -1,24 +1,4 @@
 #!/usr/bin/env python3
-"""
-Run the full Marajó pipeline in one go:
-  1) select top-N hotspot polygons
-  2) score hydro-plausibility using S1 VV Δ (dB) + DEM 30 m
-  3) render per-candidate overview PNGs (ALOS-2 RGB + S1 RGB or dB)
-
-Inputs expected in data/exports/:
-  - marajo_S1_hotspots_coarse.geojson
-  - marajo_S1VV_delta_db.tif
-  - marajo_DEM_30m.tif
-  - marajo_ALOS2_delta_rgb.tif
-  - marajo_S1VV_delta_rgb.tif (optional; if absent, uses the dB layer)
-
-Outputs:
-  - data/candidates/marajo_hotspots_topN.geojson
-  - data/candidates/marajo_hotspots_topN.csv
-  - data/candidates/marajo_hotspots_scores.csv
-  - figures/candidates/marajo-hot-01XX_overview.png
-"""
-
 import argparse
 from pathlib import Path
 from typing import Optional
@@ -33,20 +13,18 @@ from rasterio.warp import Resampling, reproject
 from rasterio.windows import from_bounds
 from skimage.filters import gaussian
 
-EXPORTS = Path("data/exports")
-CANDS = Path("data/candidates")
-FIGS = Path("figures/candidates")
-for p in (CANDS, FIGS):
-    p.mkdir(parents=True, exist_ok=True)
+ROOT = Path(".")
+EXPORTS = ROOT / "data" / "exports"
+CANDS_RT = ROOT / "data" / "candidates"
+FIGS_RT = ROOT / "figures"
 
 
-def need(path: Path, msg: str):
-    if not path.exists():
-        raise FileNotFoundError(f"Missing {path} — {msg}")
+def need(p: Path, msg: str):
+    if not p.exists():
+        raise FileNotFoundError(f"Missing {p} — {msg}")
 
 
 def deg_buffer(bbox, buffer_m):
-    # rough meter->degree near equator
     d = buffer_m / 111_320.0
     xmin, ymin, xmax, ymax = bbox
     return (xmin - d, ymin - d, xmax + d, ymax + d)
@@ -54,11 +32,11 @@ def deg_buffer(bbox, buffer_m):
 
 def window_extent(ds: rasterio.io.DatasetReader, win):
     left, top = ds.transform * (win.col_off, win.row_off)
-    right, bot = ds.transform * (win.col_off + win.width, win.row_off + win.height)
-    return (left, right, bot, top)
+    right, bottom = ds.transform * (win.col_off + win.width, win.row_off + win.height)
+    return (left, right, bottom, top)
 
 
-def step_select_topN(coarse_gj: Path, topN: int):
+def step_select_topN(coarse_gj: Path, topN: int, out_dir: Path):
     print(f"[1/3] Selecting top-{topN} hotspots from {coarse_gj.name}")
     gdf = gpd.read_file(coarse_gj)
     if gdf.empty:
@@ -66,13 +44,15 @@ def step_select_topN(coarse_gj: Path, topN: int):
     if "area_ha" in gdf.columns:
         gdf = gdf.sort_values("area_ha", ascending=False)
     else:
-        gdf = gdf.sort_values(gdf.geometry.area, ascending=False)
-        gdf["area_ha"] = gdf.geometry.area * (111_320.0**2) / 10_000.0  # approx ha
+        # compute area in hectares via Web Mercator
+        gm = gdf.to_crs(3857)
+        gdf = gdf.assign(area_ha=gm.area / 10_000.0).sort_values("area_ha", ascending=False)
+    out_dir.mkdir(parents=True, exist_ok=True)
     top = gdf.head(topN).reset_index(drop=True)
-    (CANDS / "marajo_hotspots_topN.geojson").write_text(top.to_json())
-    top[["area_ha"]].to_csv(CANDS / "marajo_hotspots_topN.csv", index=False)
-    print("  ->", CANDS / "marajo_hotspots_topN.geojson")
-    print("  ->", CANDS / "marajo_hotspots_topN.csv")
+    (out_dir / "hotspots_topN.geojson").write_text(top.to_json())
+    top[["area_ha"]].to_csv(out_dir / "hotspots_topN.csv", index=False)
+    print("  ->", out_dir / "hotspots_topN.geojson")
+    print("  ->", out_dir / "hotspots_topN.csv")
     return top
 
 
@@ -82,7 +62,7 @@ def step_score(top, s1_db: Path, dem30: Path, out_csv: Path):
         s1, s1_tr, s1_crs, s1_sh = rs1.read(1).astype("float32"), rs1.transform, rs1.crs, rs1.shape
     with rasterio.open(dem30) as rd:
         dem, dem_tr, dem_crs, dem_sh = rd.read(1).astype("float32"), rd.transform, rd.crs, rd.shape
-    if dem_sh != s1_sh or dem_crs != s1_crs or dem_tr != s1_tr:
+    if (dem_sh != s1_sh) or (dem_crs != s1_crs) or (dem_tr != s1_tr):
         dem_res = np.empty(s1_sh, dtype="float32")
         reproject(
             source=dem,
@@ -120,21 +100,32 @@ def step_score(top, s1_db: Path, dem30: Path, out_csv: Path):
             }
         )
     df = pd.DataFrame(rows).sort_values("frac_ok", ascending=False)
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_csv, index=False)
     print("  ->", out_csv)
     print(df.to_string(index=False))
     return df
 
 
-def step_render_figs(top, alos_rgb: Path, s1_rgb: Optional[Path], s1_db: Path, buffer_m: int):
+def step_render_figs(
+    top, alos_rgb: Optional[Path], s1_rgb: Optional[Path], s1_db: Path, buffer_m: int, out_dir: Path
+):
     print(f"[3/3] Rendering overview PNGs (buffer ≈ {buffer_m} m)")
-    rdA = rasterio.open(alos_rgb) if alos_rgb.exists() else None
+    out_dir.mkdir(parents=True, exist_ok=True)
+    rdA = None
+    if alos_rgb and alos_rgb.exists():
+        try:
+            rdA = rasterio.open(alos_rgb)
+        except Exception:
+            rdA = None
     rdSRGB = rasterio.open(s1_rgb) if (s1_rgb and s1_rgb.exists()) else None
     rdSDB = rasterio.open(s1_db)
+
     for i, r in top.reset_index(drop=True).iterrows():
         bb = deg_buffer(r.geometry.bounds, buffer_m)
-        fig, ax = plt.subplots(1, 2, figsize=(8.5, 4.5))
-        # ALOS-2 RGB
+        fig, ax = plt.subplots(1, 2, figsize=(8.5, 4.5), dpi=150)
+
+        # ALOS-2 RGB (left)
         if rdA is not None and rdA.count >= 3:
             w = from_bounds(*bb, transform=rdA.transform)
             left, rgt, b, t = window_extent(rdA, w)
@@ -144,10 +135,16 @@ def step_render_figs(top, alos_rgb: Path, s1_rgb: Optional[Path], s1_db: Path, b
             ax[0].set_title("ALOS-2 Δ (colorized)")
         else:
             ax[0].text(
-                0.5, 0.5, "ALOS-2 Δ not found", transform=ax[0].transAxes, ha="center", va="center"
+                0.5,
+                0.5,
+                "ALOS-2 Δ not available",
+                transform=ax[0].transAxes,
+                ha="center",
+                va="center",
             )
             ax[0].set_title("ALOS-2 Δ")
-        # S1 RGB or dB fallback
+
+        # S1 RGB or dB (right)
         drawn = False
         if rdSRGB is not None and rdSRGB.count >= 3:
             w = from_bounds(*bb, transform=rdSRGB.transform)
@@ -162,23 +159,21 @@ def step_render_figs(top, alos_rgb: Path, s1_rgb: Optional[Path], s1_db: Path, b
             left, rgt, b, t = window_extent(rdSDB, w)
             s1 = rdSDB.read(1, window=w).astype("float32")
             ax[1].imshow(
-                np.clip((s1 + 3) / 6, 0, 1),
-                extent=(left, rgt, b, t),
-                cmap="RdBu_r",
-                vmin=0,
-                vmax=1,
+                np.clip((s1 + 3) / 6, 0, 1), extent=(left, rgt, b, t), cmap="RdBu_r", vmin=0, vmax=1
             )
             ax[1].set_title("Sentinel-1 VV Δ (dB)")
+
         for a in ax:
             a.set_xlabel("lon")
             a.set_ylabel("lat")
         area = float(r.get("area_ha", float("nan")))
-        fig.suptitle(f"Marajó — Candidate rank {i+1} (≈{area:.2f} ha)")
+        fig.suptitle(f"Candidate rank {i+1} (≈{area:.2f} ha)")
         fig.tight_layout()
-        out = FIGS / f"marajo-hot-01{i+1:02d}_overview.png"
-        fig.savefig(out, bbox_inches="tight", dpi=150)
+        out = out_dir / f"marajo-hot-01{i+1:02d}_overview.png"
+        fig.savefig(out, bbox_inches="tight")
         plt.close(fig)
         print("  ->", out)
+
     if rdA is not None:
         rdA.close()
     if rdSRGB is not None:
@@ -187,26 +182,39 @@ def step_render_figs(top, alos_rgb: Path, s1_rgb: Optional[Path], s1_db: Path, b
 
 
 def main():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="AOI-scoped pipeline: select→score→render")
+    ap.add_argument(
+        "--prefix", type=str, default="marajo", help="AOI prefix (e.g., marajo, santarem, tapajos)"
+    )
     ap.add_argument("--topN", type=int, default=5)
     ap.add_argument("--buffer_m", type=int, default=6000)
     args = ap.parse_args()
-    coarse_gj = EXPORTS / "marajo_S1_hotspots_coarse.geojson"
-    s1_db = EXPORTS / "marajo_S1VV_delta_db.tif"
-    dem30 = EXPORTS / "marajo_DEM_30m.tif"
-    alos_rgb = EXPORTS / "marajo_ALOS2_delta_rgb.tif"
-    s1_rgb = EXPORTS / "marajo_S1VV_delta_rgb.tif"  # optional
-    need(coarse_gj, "Export from Earth Engine.")
-    need(s1_db, "Export S1 VV Δ (dB).")
-    need(dem30, "Export DEM 30m.")
-    top = step_select_topN(coarse_gj, args.topN)
-    _ = step_score(top, s1_db=s1_db, dem30=dem30, out_csv=CANDS / "marajo_hotspots_scores.csv")
+    px = args.prefix
+
+    # Inputs expected as data/exports/<prefix>_*
+    coarse_gj = EXPORTS / f"{px}_S1_hotspots_coarse.geojson"
+    s1_db = EXPORTS / f"{px}_S1VV_delta_db.tif"
+    dem30 = EXPORTS / f"{px}_DEM_30m.tif"
+    alos_rgb = EXPORTS / f"{px}_ALOS2_delta_rgb.tif"
+    s1_rgb = EXPORTS / f"{px}_S1VV_delta_rgb.tif"
+
+    need(coarse_gj, f"Export from Earth Engine as {px}_S1_hotspots_coarse.geojson")
+    need(s1_db, f"Export {px}_S1VV_delta_db.tif")
+    need(dem30, f"Export {px}_DEM_30m.tif")
+
+    # Outputs to data/candidates/<prefix>/ and figures/<prefix>/
+    cand_dir = CANDS_RT / px
+    figs_dir = FIGS_RT / px
+
+    top = step_select_topN(coarse_gj, args.topN, cand_dir)
+    _ = step_score(top, s1_db=s1_db, dem30=dem30, out_csv=cand_dir / "hotspots_scores.csv")
     step_render_figs(
         top,
-        alos_rgb=alos_rgb,
+        alos_rgb=alos_rgb if alos_rgb.exists() else None,
         s1_rgb=s1_rgb if s1_rgb.exists() else None,
         s1_db=s1_db,
         buffer_m=args.buffer_m,
+        out_dir=figs_dir,
     )
 
 
