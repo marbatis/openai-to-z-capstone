@@ -43,3 +43,6 @@ scripts/select_candidates.py
 scripts/score_hydro_plausibility.py
 scripts/make_candidate_overview.py
 scripts/polygonize_hotmask.py
+
+# local preview
+/data/aoi_marajo_preview.html
