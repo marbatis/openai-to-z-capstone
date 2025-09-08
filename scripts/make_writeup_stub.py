@@ -44,7 +44,7 @@ def extract_scene_ids(
         if matches(j):
             chosen.append(j)
     if not chosen:
-        chosen = [json.loads(l) for l in lines[-20:] if l.strip().startswith("{")]
+        chosen = [json.loads(line) for line in lines[-20:] if line.strip().startswith("{")]
 
     for j in chosen:
         srcs = j.get("sources") or []
