@@ -1,0 +1,15 @@
+{
+  "title": "OpenAI-to-Z Capstone: Amazonian Waterscapes (Marajó & Santarém–Óbidos)",
+  "upload_type": "software",
+  "description": "A reproducible pipeline to surface floodplain features in the Brazilian Amazon via seasonal Δ (ALOS-2 HH γ0 dB; Sentinel-1 VV), hotspot generation, and hydro-plausibility scoring. Prefix-aware AOI flow, figures, contact sheets, and write-up stubs included.",
+  "creators": [
+    { "name": "Silveira, Marcelo", "affiliation": "Independent / Austin, TX" }
+  ],
+  "license": "Apache-2.0",
+  "keywords": ["Amazon","ALOS-2","Sentinel-1","seasonal delta","waterscapes","archaeology","Marajó","Santarém"],
+  "related_identifiers": [
+    { "relation": "isSupplementTo", "scheme": "url", "identifier": "https://github.com/marbatis/openai-to-z-capstone" }
+  ],
+  "notes": "Coordinates obfuscated in public artifacts; exacts available privately for review.",
+  "language": "eng"
+}
