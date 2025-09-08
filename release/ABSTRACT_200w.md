@@ -1,0 +1,7 @@
+**Title:** Amazonian Waterscapes, End-to-End: Seasonal Δ Maps + Hotspot Candidates for Marajó & Santarém–Óbidos
+
+We built a fully reproducible pipeline to surface floodplain features in the Brazilian Amazon using open data and lightweight methods. For each AOI (Marajó and Santarém–Óbidos), we computed seasonal composites and Δ = wet − dry backscatter for two independent sensors: ALOS-2 PALSAR-2 (HH, γ⁰ dB) and Sentinel-1 VV. We then thresholded, denoised and coarsened the S1 Δ to generate polygon candidates and ranked them with a simple, transparent plausibility screen: Δ > 0 together with low relative elevation (DEM 30 m blurred baseline; “HAND-like” ≤ ~5 m).
+
+The repo logs scene/tiling IDs and steps, provides prefix-aware scripts (select → score → render), and outputs candidate figures and scores under data/candidates/<prefix>/ and figures/<prefix>/. Coordinates are obfuscated in public artifacts; exact locations can be shared privately with qualified reviewers.
+
+Results: 1) Marajó: top candidate ≈1.28 ha (frac_ok ≈ 0.445), multiple concordant Δ features along floodplain margins; 2) Santarém–Óbidos: top candidate ≈3.04 ha (frac_ok ≈ 0.451). The approach is intentionally simple, fast to reproduce, and easy to falsify: change thresholds, swap rasters, or inject additional lines of evidence (e.g., ALOS-2 wherever available, GEDI where coverage exists). This release includes figures, Top-N polygons, hydro scores, and short PT/EN write-up stubs for each AOI, plus a one-command pipeline and contact sheets for review.

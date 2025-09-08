@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "OpenAI-to-Z Capstone: Amazonian Waterscapes (Marajó & Santarém–Óbidos)"
+message: "If you use this project, please cite it."
+type: software
+version: "v1.0-marajo-santarem"
+date-released: "2025-09-07"
+license: Apache-2.0
+authors:
+  - family-names: Silveira
+    given-names: Marcelo
+    affiliation: Independent / Austin, TX
+repository-code: "https://github.com/marbatis/openai-to-z-capstone"
+keywords:
+  - Amazon
+  - ALOS-2
+  - Sentinel-1
+  - Seasonal delta
+  - Waterscapes
+  - Archaeology
