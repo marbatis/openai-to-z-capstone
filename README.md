@@ -1,3 +1,5 @@
+**Release:** [v1.0 — Marajó & Santarém–Óbidos candidate package](https://github.com/marbatis/openai-to-z-capstone/releases/tag/v1.0-marajo-santarem)
+
 # ZExplorer: OpenAI-to-Z Capstone (Self‑Guided)
 
 [![CI](https://github.com/marbatis/openai-to-z-capstone/actions/workflows/ci.yml/badge.svg)](https://github.com/marbatis/openai-to-z-capstone/actions/workflows/ci.yml)
