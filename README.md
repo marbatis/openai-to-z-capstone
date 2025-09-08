@@ -181,3 +181,5 @@ Outputs:
 - Run pipeline:     `make santarem-pipeline`
 - Outputs:          `data/candidates/<prefix>/` and `figures/<prefix>/`
 
+
+**Tip:** You can force ID extraction for a specific feature with `make writeup PREFIX=santarem CAND=marajo-hot-0102`, which passes `--candidate-id`. Otherwise it falls back to entries matching the prefix (or recent logs).
